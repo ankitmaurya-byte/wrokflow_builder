@@ -1,0 +1,7 @@
+{
+  "name": "@nextflow/shared",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "ISC",
+  "types": "src/index.ts"
+}

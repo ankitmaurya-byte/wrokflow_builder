@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./packages/frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+    depends_on:
+      - backend
+
+  backend:
+    build: ./packages/backend
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/nextflow?schema=public
+      - REDIS_URL=redis://redis:6379
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nextflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

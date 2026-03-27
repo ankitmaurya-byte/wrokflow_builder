@@ -1,0 +1,529 @@
+/* ─────────────────────────────────────────────
+   VectorShift – Global Design System
+   Dark Glassmorphism Theme
+   ───────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Design Tokens ── */
+:root {
+  --bg-base:       #0d0f1a;
+  --bg-panel:      #12152a;
+  --bg-card:       #1a1f35;
+  --bg-card-hover: #1f2540;
+  --bg-input:      #0d0f1a;
+
+  --border:        #2e3455;
+  --border-subtle: #1e2240;
+
+  --text-primary:  #e8ecf4;
+  --text-secondary:#8b92b0;
+  --text-muted:    #505875;
+
+  --accent:        #6c63ff;
+  --accent-hover:  #7c74ff;
+
+  /* Per-node-type accents */
+  --color-input:     #3b82f6;
+  --color-output:    #10b981;
+  --color-llm:       #a855f7;
+  --color-text:      #f59e0b;
+  --color-filter:    #ef4444;
+  --color-api:       #06b6d4;
+  --color-note:      #84cc16;
+  --color-transform: #f97316;
+  --color-merge:     #ec4899;
+
+  --radius:   12px;
+  --radius-sm: 8px;
+  --shadow:   0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.6);
+
+  --transition: 0.2s ease;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── App Layout ── */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ── Header / Title Bar ── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.app-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-header__logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.app-header__title {
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Main Layout ── */
+.app-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Toolbar / Node Palette ── */
+.toolbar {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  overflow-y: auto;
+  gap: 6px;
+}
+
+.toolbar__title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 4px 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 8px;
+}
+
+/* ── Draggable Node (palette item) ── */
+.draggable-node {
+  cursor: grab;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  user-select: none;
+}
+
+.draggable-node:hover {
+  background: var(--bg-card-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow);
+}
+
+.draggable-node:active {
+  cursor: grabbing;
+  transform: scale(0.97);
+}
+
+.draggable-node__icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.draggable-node__label {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ── Canvas Area ── */
+.canvas-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── BASE NODE CARD ── */
+.base-node {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  transition: box-shadow var(--transition), border-color var(--transition);
+  overflow: visible;
+}
+
+.base-node:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Node selected state (ReactFlow adds .selected) */
+.react-flow__node.selected .base-node {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108,99,255,0.4), var(--shadow-lg);
+}
+
+.base-node__header {
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.base-node__title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.base-node__body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Form Elements inside nodes ── */
+.node-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.node-field label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.node-field input[type="text"],
+.node-field input[type="url"],
+.node-field input[type="number"],
+.node-field select,
+.node-field textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  padding: 6px 8px;
+  width: 100%;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  resize: none;
+}
+
+.node-field input[type="text"]:focus,
+.node-field input[type="url"]:focus,
+.node-field select:focus,
+.node-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108,99,255,0.2);
+}
+
+.node-field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b92b0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+  cursor: pointer;
+}
+
+.node-field select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* ── Handles ── */
+.react-flow__handle {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  border: 2px solid var(--bg-card) !important;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.4);
+  box-shadow: 0 0 6px rgba(108,99,255,0.6);
+}
+
+.react-flow__handle-left {
+  background: #3b82f6 !important;
+  left: -6px !important;
+}
+
+.react-flow__handle-right {
+  background: var(--accent) !important;
+  right: -6px !important;
+}
+
+/* Handle labels */
+.handle-label {
+  position: absolute;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-muted);
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  line-height: 1;
+}
+
+.handle-label--left {
+  left: 10px;
+}
+
+.handle-label--right {
+  right: 10px;
+  text-align: right;
+}
+
+/* ── ReactFlow overrides ── */
+.react-flow__background {
+  background: var(--bg-base);
+}
+
+.react-flow__edge-path {
+  stroke: var(--accent) !important;
+  stroke-opacity: 0.7;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--accent) !important;
+  stroke-opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(108,99,255,0.5));
+}
+
+.react-flow__controls {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.react-flow__controls-button {
+  background: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+  fill: var(--text-secondary) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+.react-flow__minimap {
+  background: var(--bg-panel) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ── Submit Button ── */
+.submit-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 32px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 2px 12px rgba(108,99,255,0.4);
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(108,99,255,0.55);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Modal / Alert Overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  min-width: 320px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-card__title::before {
+  content: '⚡';
+  font-size: 18px;
+}
+
+.modal-card__stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-card__stat:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.modal-card__stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.modal-card__stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-card__stat-value.is-dag-true  { color: #10b981; }
+.modal-card__stat-value.is-dag-false { color: #ef4444; }
+
+.modal-card__actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-card__close-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  padding: 7px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.modal-card__close-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+/* ── Note Node ── */
+.node-note-textarea {
+  background: transparent;
+  border: none !important;
+  resize: none;
+  color: var(--text-secondary) !important;
+  font-size: 12px !important;
+  font-style: italic;
+  padding: 0 !important;
+  width: 100%;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Text Node (auto-resize) ── */
+.text-node-textarea {
+  min-height: 60px;
+  min-width: 160px;
+  resize: none;
+  font-family: 'Inter', monospace;
+  line-height: 1.6;
+}
